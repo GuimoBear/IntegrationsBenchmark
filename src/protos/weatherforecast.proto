@@ -1,0 +1,30 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "IntegrationsBenchmark.Protos";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service WeatherForecaster {
+  rpc ForecastFullDuplexStream (stream google.protobuf.Empty) returns (stream ForecastFullDuplexResponse);
+  rpc ForecastHalfDuplexStream (google.protobuf.Empty) returns (stream WeatherData);
+  rpc Forecast (google.protobuf.Empty) returns (WeatherDataContainer);
+}
+
+message ForecastFullDuplexResponse {
+    oneof Body {
+        WeatherData Data = 1;
+        google.protobuf.Empty End = 2;
+    }
+}
+
+message WeatherDataContainer {
+    repeated WeatherData Forecasts = 1;
+}
+
+message WeatherData {
+    google.protobuf.Timestamp Date = 1;
+    int32 TemperatureC = 2;
+    int32 TemperatureF = 3;
+    string Summary = 4;
+} 

@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    image: integrations-benchmark-server:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=1234
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/cert.pfx
+    volumes: 
+      - ./certs:/https/:ro
+    ports:
+      - "5000:80"
+      - "5001:443"
