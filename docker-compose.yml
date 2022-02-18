@@ -5,6 +5,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_GRPC_URLS=https://+:444;http://+:81
       - ASPNETCORE_Kestrel__Certificates__Default__Password=1234
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/cert.pfx
     volumes: 
@@ -12,3 +13,5 @@ services:
     ports:
       - "5000:80"
       - "5001:443"
+      - "6000:81"
+      - "6001:444"

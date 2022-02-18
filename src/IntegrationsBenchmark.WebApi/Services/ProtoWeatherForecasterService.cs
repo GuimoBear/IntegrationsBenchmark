@@ -2,6 +2,8 @@
 using Grpc.Core;
 using IntegrationsBenchmark.Protos;
 using IntegrationsBenchmark.WebApi.Services.Interfaces;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,9 +52,9 @@ namespace IntegrationsBenchmark.WebApi.Services
 
         public override async Task ForecastFullDuplexStream(IAsyncStreamReader<Empty> requestStream, IServerStreamWriter<ForecastFullDuplexResponse> responseStream, ServerCallContext context)
         {
-            while (await requestStream.MoveNext() && !context.CancellationToken.IsCancellationRequested)
+            try
             {
-                try
+                while (!context.CancellationToken.IsCancellationRequested && await requestStream.MoveNext())
                 {
                     var request = requestStream.Current;
                     if (request == null)
@@ -73,10 +75,14 @@ namespace IntegrationsBenchmark.WebApi.Services
                         End = Empty
                     });
                 }
-                catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
-                {
-                    //
-                }
+            }
+            catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
+            {
+                //
+            }
+            catch (IOException ex) when (ex.Message == "The client reset the request stream.")
+            {
+                //
             }
         }
     }

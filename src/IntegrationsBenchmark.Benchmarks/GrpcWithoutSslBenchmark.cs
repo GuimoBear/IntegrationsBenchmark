@@ -10,10 +10,12 @@ using System.Threading.Tasks;
 
 namespace IntegrationsBenchmark.Benchmarks
 {
-    [Description("Grpc")]
-    public class GrpcBenchmark : BenchmarkBase
+    [Description("Grpc without SSL")]
+    public class GrpcWithoutSslBenchmark : BenchmarkBase
     {
         private static readonly Empty Empty = new Empty();
+
+        protected override string Url => "http://localhost:6000";
 
         private GrpcChannel GrpcChannel;
         private Protos.WeatherForecaster.WeatherForecasterClient GrpcClient;
@@ -24,9 +26,9 @@ namespace IntegrationsBenchmark.Benchmarks
         [GlobalSetup]
         public override void GlobalSetup()
         {
-            GrpcChannel = GrpcChannel.ForAddress("https://localhost:5001");
+            GrpcChannel = GrpcChannel.ForAddress(Url);
             GrpcClient = new Protos.WeatherForecaster.WeatherForecasterClient(GrpcChannel);
-            StreamPool = new DuplexStreamPool<Empty, Protos.ForecastFullDuplexResponse>(ct => GrpcClient.ForecastFullDuplexStream(cancellationToken: ct), Environment.ProcessorCount);
+            StreamPool = new DuplexStreamPool<Empty, Protos.ForecastFullDuplexResponse>(ct => GrpcClient.ForecastFullDuplexStream(cancellationToken: ct), Environment.ProcessorCount, true);
         }
 
         [IterationSetup]

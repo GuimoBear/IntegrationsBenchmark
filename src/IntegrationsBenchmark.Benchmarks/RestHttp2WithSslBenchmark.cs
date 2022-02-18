@@ -1,18 +1,23 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace IntegrationsBenchmark.Benchmarks
 {
-    [Description("Rest with HTTP 2")]
-    public class RestHttp2Benchmark : BenchmarkBase
+    [Description("Rest with HTTP 2 and SSL")]
+    public class RestHttp2WithSslBenchmark : BenchmarkBase
     {
         [GlobalSetup]
         public override void GlobalSetup()
-            => Initialize();
+        {
+            Initialize();
+            Client.DefaultRequestVersion = HttpVersion.Version20;
+            Client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+        }
 
         [Benchmark(Description = "Send request")]
         public async Task<IEnumerable<WeatherData>> SendAsync()

@@ -21,22 +21,33 @@ namespace IntegrationsBenchmark.Benchmarks.Utils
         private readonly Factory _factory;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        internal DuplexStreamPool(Factory factory)
-            : this(factory, Environment.ProcessorCount * 2)
+        internal DuplexStreamPool(Factory factory, bool preInitialize = false)
+            : this(factory, Environment.ProcessorCount * 2, preInitialize)
         { }
 
-        internal DuplexStreamPool(Factory factory, int size)
+        internal DuplexStreamPool(Factory factory, int size, bool preInitialize = false)
         {
             Debug.Assert(size >= 1);
             _factory = factory;
             _items = new Element[size - 1];
+            if (preInitialize)
+                InitializeElements();
         }
 
-        internal DuplexStreamPool(Func<DuplexStreamPool<TRequest, TResponse>, CancellationToken, AsyncDuplexStreamingCall<TRequest, TResponse>> factory, int size)
+        internal DuplexStreamPool(Func<DuplexStreamPool<TRequest, TResponse>, CancellationToken, AsyncDuplexStreamingCall<TRequest, TResponse>> factory, int size, bool preInitialize = false)
         {
             Debug.Assert(size >= 1);
             _factory = (cancellationToken) => factory(this, cancellationToken);
             _items = new Element[size - 1];
+            if (preInitialize)
+                InitializeElements();
+        }
+
+        private void InitializeElements()
+        {
+            _firstItem = CreateInstance();
+            for(int i = 0; i < _items.Length; i++)
+                _items[i].Value = CreateInstance();
         }
 
         private AsyncDuplexStreamingCall<TRequest, TResponse> CreateInstance()
