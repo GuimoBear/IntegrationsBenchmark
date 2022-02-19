@@ -32,6 +32,7 @@ namespace IntegrationsBenchmark.WebApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<ProtoWeatherForecasterService>();
+                endpoints.MapGrpcService<FlatWeatherForecasterService>();
             });
         }
     }

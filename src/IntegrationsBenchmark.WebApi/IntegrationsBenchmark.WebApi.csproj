@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FlatSharp.Runtime" Version="6.2.0" />
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.42.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="Google.Protobuf" Version="3.19.4" />
@@ -14,10 +15,15 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="FlatSharp.Compiler" Version="6.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="..\protos\weatherforecast.proto" GrpcServices="Server" Generator="MSBuild:Compile" Link="Protos\weatherforecast.proto" />
+    <FlatSharpSchema Include="..\protos\weatherforecast.fbs" Generator="MSBuild:Compile" Link="Flats\weatherforecast.fbs" />
   </ItemGroup>
 
 </Project>
