@@ -23,7 +23,11 @@
 
   <ItemGroup>
     <Protobuf Include="..\protos\weatherforecast.proto" GrpcServices="Server" Generator="MSBuild:Compile" Link="Protos\weatherforecast.proto" />
-    <FlatSharpSchema Include="..\protos\weatherforecast.fbs" Generator="MSBuild:Compile" Link="Flats\weatherforecast.fbs" />
+	  <FlatSharpSchema Include="..\protos\empty.fbs" Generator="MSBuild:Compile" Link="Flats\empty.fbs" />
+    <FlatSharpSchema Include="..\protos\weatherforecast_lazy.fbs" Generator="MSBuild:Compile" Link="Flats\weatherforecast_lazy.fbs" />
+    <FlatSharpSchema Include="..\protos\weatherforecast_progressive.fbs" Generator="MSBuild:Compile" Link="Flats\weatherforecast_progressive.fbs" />
+    <FlatSharpSchema Include="..\protos\weatherforecast_greedy.fbs" Generator="MSBuild:Compile" Link="Flats\weatherforecast_greedy.fbs" />
+    <FlatSharpSchema Include="..\protos\weatherforecast_greedy_mutable.fbs" Generator="MSBuild:Compile" Link="Flats\weatherforecast_greedy_mutable.fbs" />
   </ItemGroup>
 
 </Project>

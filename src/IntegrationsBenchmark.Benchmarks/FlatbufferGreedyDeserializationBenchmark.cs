@@ -8,26 +8,26 @@ using System.Threading.Tasks;
 
 namespace IntegrationsBenchmark.Benchmarks
 {
-    [Description("Grpc with Flatbuffer")]
-    public class FlatbufferWithoutSslBenchmark : BenchmarkBase
+    [Description("Grpc with Flatbuffer greedy deserialization")]
+    public class FlatbufferGreedyDeserializationBenchmark : BenchmarkBase
     {
         private static readonly Flats.Empty Empty = new Flats.Empty();
 
         protected override string Url => "localhost";
 
         private Channel GrpcChannel;
-        private Flats.FlatWeatherForecaster.FlatWeatherForecasterClient GrpcClient;
-        private DuplexStreamPool<Flats.Empty, Flats.ForecastFullDuplexResponse> StreamPool;
+        private Flats.FlatWeatherForecasterGreedy.FlatWeatherForecasterGreedyClient GrpcClient;
+        private DuplexStreamPool<Flats.Empty, Flats.ForecastGreedyFullDuplexResponse> StreamPool;
 
-        private AsyncDuplexStreamingCall<Flats.Empty, Flats.ForecastFullDuplexResponse> StreamingCall;
+        private AsyncDuplexStreamingCall<Flats.Empty, Flats.ForecastGreedyFullDuplexResponse> StreamingCall;
 
         [GlobalSetup]
         public override void GlobalSetup()
         {
             GrpcChannel = new Channel(Url, 6000, ChannelCredentials.Insecure);
             GrpcChannel.ConnectAsync().Wait();
-            GrpcClient = new Flats.FlatWeatherForecaster.FlatWeatherForecasterClient(GrpcChannel);
-            StreamPool = new DuplexStreamPool<Flats.Empty, Flats.ForecastFullDuplexResponse>(ct => GrpcClient.ForecastFullDuplexStream(cancellationToken: ct), Environment.ProcessorCount, true);
+            GrpcClient = new Flats.FlatWeatherForecasterGreedy.FlatWeatherForecasterGreedyClient(GrpcChannel);
+            StreamPool = new DuplexStreamPool<Flats.Empty, Flats.ForecastGreedyFullDuplexResponse>(ct => GrpcClient.ForecastFullDuplexStream(cancellationToken: ct), Environment.ProcessorCount, true);
         }
 
         [IterationSetup]
@@ -35,30 +35,30 @@ namespace IntegrationsBenchmark.Benchmarks
             => StreamingCall = StreamPool.Allocate();
 
         [Benchmark(Description = "Send request to duplex streaming channel")]
-        public async Task<IEnumerable<Flats.WeatherData>> SendDuplexAsync()
+        public async Task<IEnumerable<Flats.WeatherDataGreedy>> SendDuplexAsync()
         {
             await StreamingCall.RequestStream.WriteAsync(Empty);
-            var res = new List<Flats.WeatherData>();
-            while (await StreamingCall.ResponseStream.MoveNext() && StreamingCall.ResponseStream.Current.Type == Flats.ForecastFullDuplexResponseType.Item)
+            var res = new List<Flats.WeatherDataGreedy>();
+            while (await StreamingCall.ResponseStream.MoveNext() && StreamingCall.ResponseStream.Current.Type == Flats.ForecastGreedyFullDuplexResponseType.Item)
                 res.Add(StreamingCall.ResponseStream.Current.Item);
             return res;
         }
 
         [Benchmark(Description = "Send request and get data stream")]
-        public async Task<IEnumerable<Flats.WeatherData>> SendStreamAsync()
+        public async Task<IEnumerable<Flats.WeatherDataGreedy>> SendStreamAsync()
         {
             using var stream = GrpcClient.ForecastHalfDuplexStream(Empty);
-            var res = new List<Flats.WeatherData>();
+            var res = new List<Flats.WeatherDataGreedy>();
             await foreach (var weatherData in stream.ResponseStream.ReadAllAsync())
                 res.Add(weatherData);
             return res;
         }
 
         [Benchmark(Description = "Send request")]
-        public async Task<IEnumerable<Flats.WeatherData>> SendAsync()
+        public async Task<IEnumerable<Flats.WeatherDataGreedy>> SendAsync()
         {
             var response = await GrpcClient.Forecast(Empty);
-            var res = new List<Flats.WeatherData>();
+            var res = new List<Flats.WeatherDataGreedy>();
             foreach (var weatherData in response.Forecasts)
                 res.Add(weatherData);
             return res;

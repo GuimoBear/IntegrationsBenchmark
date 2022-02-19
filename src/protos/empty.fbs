@@ -1,0 +1,5 @@
+attribute "fs_serializer";
+
+namespace IntegrationsBenchmark.Flats;
+
+table Empty (fs_serializer:"Lazy") { }

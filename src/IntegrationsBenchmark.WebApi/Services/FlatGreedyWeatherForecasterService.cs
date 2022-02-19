@@ -8,23 +8,23 @@ using System.Threading.Tasks;
 
 namespace IntegrationsBenchmark.WebApi.Services
 {
-    public class FlatWeatherForecasterService : FlatWeatherForecaster.FlatWeatherForecasterServerBase
+    public class FlatGreedyWeatherForecasterService : FlatWeatherForecasterGreedy.FlatWeatherForecasterGreedyServerBase
     {
         private static readonly Empty Empty = new Empty();
 
         private readonly IWeatherForecasterService _service;
 
-        public FlatWeatherForecasterService(IWeatherForecasterService service)
+        public FlatGreedyWeatherForecasterService(IWeatherForecasterService service)
         {
             _service = service;
         }
 
-        public override async Task<WeatherDataContainer> Forecast(Empty request, ServerCallContext context)
+        public override async Task<WeatherDataGreedyContainer> Forecast(Empty request, ServerCallContext context)
         {
             var serviceResult = await _service.Forecast(31);
-            var forecasts = new List<WeatherData>();
+            var forecasts = new List<WeatherDataGreedy>();
             serviceResult.Select(forecast =>
-                new WeatherData
+                new WeatherDataGreedy
                 {
                     Date = forecast.Date.ToUniversalTime().Ticks,
                     Summary = forecast.Summary,
@@ -34,18 +34,18 @@ namespace IntegrationsBenchmark.WebApi.Services
                 .ToList()
                 .ForEach(forecasts.Add);
 
-            var response = new WeatherDataContainer()
+            var response = new WeatherDataGreedyContainer()
             {
                 Forecasts = forecasts
             };
             return response;
         }
 
-        public override async Task ForecastHalfDuplexStream(Empty request, IServerStreamWriter<WeatherData> responseStream, ServerCallContext context)
+        public override async Task ForecastHalfDuplexStream(Empty request, IServerStreamWriter<WeatherDataGreedy> responseStream, ServerCallContext context)
         {
             var serviceResult = await _service.Forecast(31);
             foreach (var weatherData in serviceResult)
-                await responseStream.WriteAsync(new WeatherData
+                await responseStream.WriteAsync(new WeatherDataGreedy
                 {
                     Date = weatherData.Date.ToUniversalTime().Ticks,
                     Summary = weatherData.Summary,
@@ -54,7 +54,7 @@ namespace IntegrationsBenchmark.WebApi.Services
                 });
         }
 
-        public override async Task ForecastFullDuplexStream(IAsyncStreamReader<Empty> requestStream, IServerStreamWriter<ForecastFullDuplexResponse> responseStream, ServerCallContext context)
+        public override async Task ForecastFullDuplexStream(IAsyncStreamReader<Empty> requestStream, IServerStreamWriter<ForecastGreedyFullDuplexResponse> responseStream, ServerCallContext context)
         {
             try
             {
@@ -65,10 +65,10 @@ namespace IntegrationsBenchmark.WebApi.Services
                         continue;
                     var serviceResult = await _service.Forecast(31);
                     foreach (var weatherData in serviceResult)
-                        await responseStream.WriteAsync(new ForecastFullDuplexResponse
+                        await responseStream.WriteAsync(new ForecastGreedyFullDuplexResponse
                         {
-                            Type = ForecastFullDuplexResponseType.Item,
-                            Item = new WeatherData
+                            Type = ForecastGreedyFullDuplexResponseType.Item,
+                            Item = new WeatherDataGreedy
                             {
                                 Date = weatherData.Date.ToUniversalTime().Ticks,
                                 Summary = weatherData.Summary,
@@ -76,9 +76,9 @@ namespace IntegrationsBenchmark.WebApi.Services
                                 TemperatureF = weatherData.TemperatureF
                             }
                         });
-                    await responseStream.WriteAsync(new ForecastFullDuplexResponse
+                    await responseStream.WriteAsync(new ForecastGreedyFullDuplexResponse
                     {
-                        Type = ForecastFullDuplexResponseType.End
+                        Type = ForecastGreedyFullDuplexResponseType.End
                     });
                 }
             }

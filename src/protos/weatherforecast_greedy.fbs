@@ -1,0 +1,31 @@
+include "empty.fbs";
+
+attribute "fs_serializer";
+attribute "fs_rpcInterface";
+attribute "fs_vector";
+
+namespace IntegrationsBenchmark.Flats;
+
+table WeatherDataGreedy (fs_serializer:"Greedy") {
+    Date: long;
+    TemperatureC: int;
+    TemperatureF: int;
+    Summary: string;
+} 
+
+table WeatherDataGreedyContainer (fs_serializer:"Greedy") {
+    Forecasts: [WeatherDataGreedy] (fs_vector:"IReadOnlyList");
+}
+
+enum ForecastGreedyFullDuplexResponseType : byte { Item, End }
+
+table ForecastGreedyFullDuplexResponse (fs_serializer:"Greedy") {
+    Type: ForecastGreedyFullDuplexResponseType = Item;
+    Item: WeatherDataGreedy;
+}
+
+rpc_service FlatWeatherForecasterGreedy (fs_rpcInterface) {
+  Forecast (Empty): WeatherDataGreedyContainer;
+  ForecastHalfDuplexStream (Empty): WeatherDataGreedy                (streaming : "server");
+  ForecastFullDuplexStream (Empty): ForecastGreedyFullDuplexResponse (streaming : "duplex");
+}

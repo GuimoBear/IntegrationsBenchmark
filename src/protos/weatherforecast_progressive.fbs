@@ -1,0 +1,31 @@
+include "empty.fbs";
+
+attribute "fs_serializer";
+attribute "fs_rpcInterface";
+attribute "fs_vector";
+
+namespace IntegrationsBenchmark.Flats;
+
+table WeatherDataProgressive (fs_serializer:"Progressive") {
+    Date: long;
+    TemperatureC: int;
+    TemperatureF: int;
+    Summary: string;
+} 
+
+table WeatherDataProgressiveContainer (fs_serializer:"Progressive") {
+    Forecasts: [WeatherDataProgressive] (fs_vector:"IReadOnlyList");
+}
+
+enum ForecastProgressiveFullDuplexResponseType : byte { Item, End }
+
+table ForecastProgressiveFullDuplexResponse (fs_serializer:"Progressive") {
+    Type: ForecastProgressiveFullDuplexResponseType = Item;
+    Item: WeatherDataProgressive;
+}
+
+rpc_service FlatWeatherForecasterProgressive (fs_rpcInterface) {
+  Forecast (Empty): WeatherDataProgressiveContainer;
+  ForecastHalfDuplexStream (Empty): WeatherDataProgressive                (streaming : "server");
+  ForecastFullDuplexStream (Empty): ForecastProgressiveFullDuplexResponse (streaming : "duplex");
+}

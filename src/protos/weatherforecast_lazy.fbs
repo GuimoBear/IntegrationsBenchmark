@@ -1,0 +1,31 @@
+include "empty.fbs";
+
+attribute "fs_serializer";
+attribute "fs_rpcInterface";
+attribute "fs_vector";
+
+namespace IntegrationsBenchmark.Flats;
+
+table WeatherDataLazy (fs_serializer:"Lazy") {
+    Date: long;
+    TemperatureC: int;
+    TemperatureF: int;
+    Summary: string;
+} 
+
+table WeatherDataLazyContainer (fs_serializer:"Lazy") {
+    Forecasts: [WeatherDataLazy] (fs_vector:"IReadOnlyList");
+}
+
+enum ForecastLazyFullDuplexResponseType : byte { Item, End }
+
+table ForecastLazyFullDuplexResponse (fs_serializer:"Lazy") {
+    Type: ForecastLazyFullDuplexResponseType = Item;
+    Item: WeatherDataLazy;
+}
+
+rpc_service FlatWeatherForecasterLazy (fs_rpcInterface) {
+  Forecast (Empty): WeatherDataLazyContainer;
+  ForecastHalfDuplexStream (Empty): WeatherDataLazy                (streaming : "server");
+  ForecastFullDuplexStream (Empty): ForecastLazyFullDuplexResponse (streaming : "duplex");
+}
