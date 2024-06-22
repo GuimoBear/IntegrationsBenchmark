@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace IntegrationsBenchmark.Benchmarks
 {
     [Description("Grpc with SSL")]
+    [MemoryDiagnoser(true)]
     public class GrpcWithSslBenchmark : BenchmarkBase
     {
         private static readonly Empty Empty = new Empty();
@@ -36,7 +37,7 @@ namespace IntegrationsBenchmark.Benchmarks
             => StreamingCall = StreamPool.Allocate();
 
         [Benchmark(Description = "Send request to duplex streaming channel")]
-        public async Task<IEnumerable<Protos.WeatherData>> SendDuplexAsync()
+        public async Task<List<Protos.WeatherData>> SendDuplexAsync()
         {
             await StreamingCall.RequestStream.WriteAsync(Empty);
             var res = new List<Protos.WeatherData>();
@@ -46,7 +47,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request and get data stream")]
-        public async Task<IEnumerable<Protos.WeatherData>> SendStreamAsync()
+        public async Task<List<Protos.WeatherData>> SendStreamAsync()
         {
             using var stream = GrpcClient.ForecastHalfDuplexStream(Empty);
             var res = new List<Protos.WeatherData>();
@@ -56,7 +57,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request")]
-        public async Task<IEnumerable<Protos.WeatherData>> SendAsync()
+        public async Task<IList<Protos.WeatherData>> SendAsync()
         {
             var response = await GrpcClient.ForecastAsync(Empty);
             return response.Forecasts;

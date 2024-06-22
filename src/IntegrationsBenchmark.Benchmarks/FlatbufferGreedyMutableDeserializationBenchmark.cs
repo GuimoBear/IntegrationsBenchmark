@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace IntegrationsBenchmark.Benchmarks
 {
     [Description("Grpc with Flatbuffer greedy mutable deserialization")]
+    [MemoryDiagnoser(true)]
     public class FlatbufferGreedyMutableDeserializationBenchmark : BenchmarkBase
     {
         private static readonly Flats.Empty Empty = new Flats.Empty();
@@ -35,7 +36,7 @@ namespace IntegrationsBenchmark.Benchmarks
             => StreamingCall = StreamPool.Allocate();
 
         [Benchmark(Description = "Send request to duplex streaming channel")]
-        public async Task<IEnumerable<Flats.WeatherDataGreedyMutable>> SendDuplexAsync()
+        public async Task<List<Flats.WeatherDataGreedyMutable>> SendDuplexAsync()
         {
             await StreamingCall.RequestStream.WriteAsync(Empty);
             var res = new List<Flats.WeatherDataGreedyMutable>();
@@ -45,7 +46,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request and get data stream")]
-        public async Task<IEnumerable<Flats.WeatherDataGreedyMutable>> SendStreamAsync()
+        public async Task<List<Flats.WeatherDataGreedyMutable>> SendStreamAsync()
         {
             using var stream = GrpcClient.ForecastHalfDuplexStream(Empty);
             var res = new List<Flats.WeatherDataGreedyMutable>();
@@ -55,7 +56,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request")]
-        public async Task<IEnumerable<Flats.WeatherDataGreedyMutable>> SendAsync()
+        public async Task<List<Flats.WeatherDataGreedyMutable>> SendAsync()
         {
             var response = await GrpcClient.Forecast(Empty);
             var res = new List<Flats.WeatherDataGreedyMutable>();

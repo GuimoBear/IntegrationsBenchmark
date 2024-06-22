@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace IntegrationsBenchmark.Benchmarks
 {
     [Description("Grpc with Flatbuffer progressive deserialization")]
+    [MemoryDiagnoser(true)]
     public class FlatbufferProgressiveDeserializationBenchmark : BenchmarkBase
     {
         private static readonly Flats.Empty Empty = new Flats.Empty();
@@ -35,7 +36,7 @@ namespace IntegrationsBenchmark.Benchmarks
             => StreamingCall = StreamPool.Allocate();
 
         [Benchmark(Description = "Send request to duplex streaming channel")]
-        public async Task<IEnumerable<Flats.WeatherDataProgressive>> SendDuplexAsync()
+        public async Task<List<Flats.WeatherDataProgressive>> SendDuplexAsync()
         {
             await StreamingCall.RequestStream.WriteAsync(Empty);
             var res = new List<Flats.WeatherDataProgressive>();
@@ -45,7 +46,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request and get data stream")]
-        public async Task<IEnumerable<Flats.WeatherDataProgressive>> SendStreamAsync()
+        public async Task<List<Flats.WeatherDataProgressive>> SendStreamAsync()
         {
             using var stream = GrpcClient.ForecastHalfDuplexStream(Empty);
             var res = new List<Flats.WeatherDataProgressive>();
@@ -55,7 +56,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request")]
-        public async Task<IEnumerable<Flats.WeatherDataProgressive>> SendAsync()
+        public async Task<List<Flats.WeatherDataProgressive>> SendAsync()
         {
             var response = await GrpcClient.Forecast(Empty);
             var res = new List<Flats.WeatherDataProgressive>();

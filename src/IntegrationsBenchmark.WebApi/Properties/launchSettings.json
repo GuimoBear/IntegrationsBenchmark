@@ -9,7 +9,7 @@
         "ASPNETCORE_URLS": "https://+:443;http://+:80",
         "ASPNETCORE_GRPC_URLS": "https://+:444;http://+:81", 
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_Kestrel__Certificates__Default__Path": "$(SolutionDir)certs\\cert.pfx",
+        "ASPNETCORE_Kestrel__Certificates__Default__Path": "..\\..\\certs\\cert.pfx",
         "ASPNETCORE_Kestrel__Certificates__Default__Password": "1234"
       },
       "dotnetRunMessages": "true",

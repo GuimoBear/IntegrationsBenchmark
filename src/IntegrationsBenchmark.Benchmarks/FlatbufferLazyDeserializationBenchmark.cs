@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace IntegrationsBenchmark.Benchmarks
 {
     [Description("Grpc with Flatbuffer lazy deserialization")]
+    [MemoryDiagnoser(true)]
     public class FlatbufferLazyDeserializationBenchmark : BenchmarkBase
     {
         private static readonly Flats.Empty Empty = new Flats.Empty();
@@ -35,7 +36,7 @@ namespace IntegrationsBenchmark.Benchmarks
             => StreamingCall = StreamPool.Allocate();
 
         [Benchmark(Description = "Send request to duplex streaming channel")]
-        public async Task<IEnumerable<Flats.WeatherDataLazy>> SendDuplexAsync()
+        public async Task<List<Flats.WeatherDataLazy>> SendDuplexAsync()
         {
             await StreamingCall.RequestStream.WriteAsync(Empty);
             var res = new List<Flats.WeatherDataLazy>();
@@ -45,7 +46,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request and get data stream")]
-        public async Task<IEnumerable<Flats.WeatherDataLazy>> SendStreamAsync()
+        public async Task<List<Flats.WeatherDataLazy>> SendStreamAsync()
         {
             using var stream = GrpcClient.ForecastHalfDuplexStream(Empty);
             var res = new List<Flats.WeatherDataLazy>();
@@ -55,7 +56,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request")]
-        public async Task<IEnumerable<Flats.WeatherDataLazy>> SendAsync()
+        public async Task<List<Flats.WeatherDataLazy>> SendAsync()
         {
             var response = await GrpcClient.Forecast(Empty);
             var res = new List<Flats.WeatherDataLazy>();

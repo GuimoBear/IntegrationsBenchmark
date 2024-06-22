@@ -35,7 +35,7 @@ namespace IntegrationsBenchmark.Benchmarks
             AddColumnProvider(DefaultColumnProviders.Metrics);
 
             AddJob(Job.Default
-                   .WithRuntime(CoreRuntime.Core60)
+                   .WithRuntime(CoreRuntime.Core80)
                    .WithLaunchCount(1)
                    .WithWarmupCount(2)
                    .WithUnrollFactor(Iterations)

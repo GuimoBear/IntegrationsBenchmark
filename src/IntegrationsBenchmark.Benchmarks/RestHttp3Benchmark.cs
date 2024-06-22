@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace IntegrationsBenchmark.Benchmarks
 {
     [Description("Rest with HTTP 3")]
+    [MemoryDiagnoser(true)]
     public class RestHttp3Benchmark : BenchmarkBase
     {
         [GlobalSetup]
@@ -20,7 +21,7 @@ namespace IntegrationsBenchmark.Benchmarks
         }
 
         [Benchmark(Description = "Send request")]
-        public async Task<IEnumerable<WeatherData>> SendAsync()
+        public async Task<List<WeatherData>> SendAsync()
         {
             var httpResponse = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, "weatherforecast"));
             var str = await httpResponse.Content.ReadAsStringAsync();
